@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const Submission = require('../models/Submission');
 const Assignment = require('../models/Assignment');
+const Student = require('../models/Student'); // Import Student model
 const authenticate = require('../middleware/authenticate');
 
 const router = express.Router();
@@ -63,7 +64,10 @@ router.get('/:assignment_id/submissions', authenticate(['teacher', 'student']), 
     if (req.user.role === 'student') {
       whereClause.student_id = req.user.id; // Ensure students only see their own submissions
     }
-    const submissions = await Submission.findAll({ where: whereClause });
+    const submissions = await Submission.findAll({
+      where: whereClause,
+      include: [{ model: Student, attributes: ['name'] }], // Include student's name
+    });
     res.send(submissions);
   } catch (error) {
     res.status(400).send(error);
@@ -72,7 +76,10 @@ router.get('/:assignment_id/submissions', authenticate(['teacher', 'student']), 
 
 router.get('/student/me', authenticate('student'), async (req, res) => {
   try {
-    const submissions = await Submission.findAll({ where: { student_id: req.user.id } });
+    const submissions = await Submission.findAll({
+      where: { student_id: req.user.id },
+      include: [{ model: Assignment, attributes: ['title'] }], // Include assignment title
+    });
     res.send(submissions);
   } catch (error) {
     res.status(400).send(error);
@@ -131,6 +138,22 @@ router.put('/:submission_id/grade', authenticate('teacher'), async (req, res) =>
     submission.student_grade = req.body.grade;
     await submission.save();
     res.send(submission);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.get('/download/:submission_id', authenticate(['teacher', 'student']), async (req, res) => {
+  try {
+    const submission = await Submission.findByPk(req.params.submission_id);
+    if (!submission) {
+      return res.status(404).send({ error: 'Submission not found' });
+    }
+    if (req.user.role === 'student' && submission.student_id !== req.user.id) {
+      return res.status(403).send({ error: 'Forbidden' });
+    }
+    const filePath = path.join(__dirname, '..', submission.file_path);
+    res.download(filePath, submission.original_file_name);
   } catch (error) {
     res.status(400).send(error);
   }

@@ -1,5 +1,7 @@
 const express = require('express');
 const Lesson = require('../models/Lesson');
+const Class = require('../models/Class'); // Import Class model
+const Enrollment = require('../models/Enrollment'); // Import Enrollment model
 const authenticate = require('../middleware/authenticate');
 
 const router = express.Router();
@@ -31,6 +33,24 @@ router.get('/class/:class_id/lessons', authenticate(['teacher', 'student']), asy
     const lessons = await Lesson.findAll({ where: { class_id: req.params.class_id } });
     res.send(lessons);
   } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.get('/student/me', authenticate(['student']), async (req, res) => {
+  try {
+    const lessons = await Lesson.findAll({
+      include: {
+        model: Class,
+        include: {
+          model: Enrollment,
+          where: { student_id: req.user.id },
+        },
+      },
+    });
+    res.send(lessons);
+  } catch (error) {
+    console.error('Error fetching lessons for student:', error);
     res.status(400).send(error);
   }
 });

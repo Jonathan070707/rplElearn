@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import ClassDetails from './pages/ClassDetails';
+import ViewSubmissions from './pages/ViewSubmissions';
+import Grades from './pages/Grades'; // Import the Grades component
 
 function App() {
   return (
@@ -16,6 +18,9 @@ function App() {
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
         <Route path="/class/:classId" element={<ClassDetails />} />
+        <Route path="/assignments/:assignmentId/submissions" element={<ViewSubmissions />} />
+        <Route path="/class/:classId/assignments/:assignmentId/submissions" element={<ViewSubmissions />} />
+        <Route path="/class/:classId/grades" element={<Grades />} /> {/* Add the Grades route */}
       </Routes>
     </Router>
   );

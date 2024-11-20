@@ -1,0 +1,25 @@
+.tooltip {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  z-index: 1000;
+}
+
+.react-calendar__tile:hover .tooltip {
+  display: block;
+}
+
+.popup {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  z-index: 1000;
+}
+
+.react-calendar__tile:hover .popup {
+  display: block;
+}

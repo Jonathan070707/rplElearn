@@ -109,35 +109,6 @@ function TeacherDashboard() {
         />
         <button type="submit">Create Class</button>
       </form>
-      <h2>Enrollments</h2>
-      <ul>
-        {enrollments.map((enrollment) => (
-          <li key={enrollment.id}>{enrollment.student.name}</li>
-        ))}
-      </ul>
-      <h2>Lessons</h2>
-      <ul>
-        {lessons.map((lesson) => (
-          <li key={lesson.id}>{lesson.title}</li>
-        ))}
-      </ul>
-      <h2>Assignments</h2>
-      <ul>
-        {assignments.map((assignment) => (
-          <li key={assignment.id}>
-            <h3>{assignment.title}</h3>
-            <p>{assignment.description}</p>
-          </li>
-        ))}
-      </ul>
-      <h2>Submissions</h2>
-      <ul>
-        {submissions.map((submission) => (
-          <li key={submission.id}>
-            {submission.assignment.title} - {submission.grade}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

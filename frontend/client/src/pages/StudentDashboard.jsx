@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Calendar from 'react-calendar'; // Import Calendar component
+import 'react-calendar/dist/Calendar.css'; // Import Calendar CSS
+import './StudentDashboard.css'; // Import custom CSS
 
 function StudentDashboard() {
   const [classes, setClasses] = useState([]);
@@ -9,6 +12,8 @@ function StudentDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const [enrollmentCode, setEnrollmentCode] = useState('');
   const [username, setUsername] = useState('');
+  const [calendarAssignments, setCalendarAssignments] = useState([]); // Add state for calendar assignments
+  const [hoveredDate, setHoveredDate] = useState(null); // Add state for hovered date
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,25 +30,35 @@ function StudentDashboard() {
 
     const fetchData = async () => {
       const token = localStorage.getItem('token');
-      const classResponse = await axios.get('/api/classes/student/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setClasses(classResponse.data);
+      try {
+        const classResponse = await axios.get('/api/classes/student/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setClasses(classResponse.data);
 
-      const lessonResponse = await axios.get('/api/lessons/student/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setLessons(lessonResponse.data);
+        const lessonResponse = await axios.get('/api/lessons/student/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setLessons(lessonResponse.data);
 
-      const assignmentResponse = await axios.get('/api/assignments/student/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAssignments(assignmentResponse.data);
+        const assignmentResponse = await axios.get('/api/assignments/student/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAssignments(assignmentResponse.data);
+        setCalendarAssignments(assignmentResponse.data.map(assignment => ({
+          date: new Date(assignment.due_date),
+          className: assignment.Class.name,
+          assignmentName: assignment.title,
+          assignmentId: assignment.id,
+        }))); // Set calendar assignments
 
-      const submissionResponse = await axios.get('/api/submissions/student/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSubmissions(submissionResponse.data);
+        const submissionResponse = await axios.get('/api/submissions/student/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSubmissions(submissionResponse.data);
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      }
     };
 
     verifyRole();
@@ -77,6 +92,35 @@ function StudentDashboard() {
     navigate('/login');
   };
 
+  const tileContent = ({ date, view }) => {
+    if (view === 'month') {
+      const assignmentsForDate = calendarAssignments.filter(a => a.date.toDateString() === date.toDateString());
+      if (assignmentsForDate.length > 0) {
+        return (
+          <div
+            onMouseEnter={() => setHoveredDate(date)}
+            onMouseLeave={() => setHoveredDate(null)}
+          >
+            <span role="img" aria-label="assignment">📅</span>
+            {hoveredDate && hoveredDate.toDateString() === date.toDateString() && (
+              <div className="popup">
+                {assignmentsForDate.map(assignment => {
+                  const isSubmitted = submissions.some(submission => submission.assignment_id === assignment.assignmentId);
+                  return (
+                    <div key={assignment.assignmentId} style={{ color: isSubmitted ? 'green' : 'red' }}>
+                      {assignment.className}: {assignment.assignmentName}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
   return (
     <div>
       <h1>Student Dashboard</h1>
@@ -100,26 +144,10 @@ function StudentDashboard() {
         />
         <button type="submit">Enroll</button>
       </form>
-      <h2>Lessons</h2>
-      <ul>
-        {lessons.map((lesson) => (
-          <li key={lesson.id}>{lesson.title}</li>
-        ))}
-      </ul>
-      <h2>Assignments</h2>
-      <ul>
-        {assignments.map((assignment) => (
-          <li key={assignment.id}>{assignment.title}</li>
-        ))}
-      </ul>
-      <h2>Submissions</h2>
-      <ul>
-        {submissions.map((submission) => (
-          <li key={submission.id}>
-            {submission.assignment.title} - {submission.grade}
-          </li>
-        ))}
-      </ul>
+      <h2>Assignment Calendar</h2>
+      <Calendar
+        tileContent={tileContent}
+      />
     </div>
   );
 }

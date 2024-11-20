@@ -4,6 +4,7 @@ const Enrollment = require('../models/Enrollment');
 const Student = require('../models/Student');
 const Lesson = require('../models/Lesson');
 const Assignment = require('../models/Assignment');
+const Submission = require('../models/Submission');
 const authenticate = require('../middleware/authenticate');
 const { v4: uuidv4 } = require('uuid'); // Import UUID library
 
@@ -74,6 +75,130 @@ router.get('/:class_id', authenticate(['teacher', 'student']), async (req, res) 
     res.send(classDetails);
   } catch (error) {
     console.error('Error fetching class details:', error);
+    res.status(400).send(error);
+  }
+});
+
+router.put('/:class_id', authenticate(['teacher']), async (req, res) => {
+  try {
+    const classId = req.params.class_id;
+    const classDetails = await Class.findByPk(classId);
+    if (!classDetails) {
+      return res.status(404).send({ error: 'Class not found' });
+    }
+    if (classDetails.teacher_id !== req.user.id) {
+      return res.status(403).send({ error: 'Forbidden' });
+    }
+    await classDetails.update({ name: req.body.name });
+    res.send(classDetails);
+  } catch (error) {
+    console.error('Error updating class:', error);
+    res.status(400).send(error);
+  }
+});
+
+router.delete('/:class_id', authenticate(['teacher']), async (req, res) => {
+  try {
+    const classId = req.params.class_id;
+    const classDetails = await Class.findByPk(classId);
+    if (!classDetails) {
+      return res.status(404).send({ error: 'Class not found' });
+    }
+    if (classDetails.teacher_id !== req.user.id) {
+      return res.status(403).send({ error: 'Forbidden' });
+    }
+    await classDetails.destroy();
+    res.send({ message: 'Class deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting class:', error);
+    res.status(400).send(error);
+  }
+});
+
+router.get('/:class_id/grades', authenticate(['teacher', 'student']), async (req, res) => {
+  try {
+    const classId = req.params.class_id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const classDetails = await Class.findByPk(classId, {
+      include: [
+        {
+          model: Assignment,
+          include: [
+            {
+              model: Submission,
+              include: [Student],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!classDetails) {
+      return res.status(404).send({ error: 'Class not found' });
+    }
+
+    let grades = [];
+
+    if (userRole === 'teacher') {
+      grades = classDetails.Assignments.map((assignment) => {
+        return assignment.Submissions.map((submission) => ({
+          studentId: submission.Student.id,
+          studentName: submission.Student.name,
+          assignmentId: assignment.id,
+          assignmentName: assignment.title,
+          grade: submission.student_grade !== null ? submission.student_grade : 'Not Graded',
+        }));
+      }).flat();
+    } else if (userRole === 'student') {
+      grades = classDetails.Assignments.map((assignment) => {
+        const submission = assignment.Submissions.find((sub) => sub.student_id === userId);
+        return {
+          studentId: userId,
+          studentName: req.user.name,
+          assignmentId: assignment.id,
+          assignmentName: assignment.title,
+          grade: submission ? (submission.student_grade !== null ? submission.student_grade : 'Not Graded') : 'Not Submitted',
+        };
+      });
+    }
+
+    const groupedGrades = grades.reduce((acc, grade) => {
+      const student = acc.find((s) => s.studentId === grade.studentId);
+      if (student) {
+        student.assignments.push({
+          assignmentId: grade.assignmentId,
+          assignmentName: grade.assignmentName,
+          grade: grade.grade,
+        });
+        student.totalGrade += grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? parseFloat(grade.grade) : 0;
+        student.assignmentCount += grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? 1 : 0;
+      } else {
+        acc.push({
+          studentId: grade.studentId,
+          studentName: grade.studentName,
+          assignments: [
+            {
+              assignmentId: grade.assignmentId,
+              assignmentName: grade.assignmentName,
+              grade: grade.grade,
+            },
+          ],
+          totalGrade: grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? parseFloat(grade.grade) : 0,
+          assignmentCount: grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? 1 : 0,
+        });
+      }
+      return acc;
+    }, []);
+
+    groupedGrades.forEach(student => {
+      student.totalGrade = student.assignmentCount > 0 ? (student.totalGrade / student.assignmentCount).toFixed(2) : 0;
+    });
+
+    res.send(groupedGrades);
+  } catch (error) {
+    console.error('Error fetching grades:', error);
     res.status(400).send(error);
   }
 });
