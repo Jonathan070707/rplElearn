@@ -1,4 +1,3 @@
-
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
@@ -15,7 +14,7 @@ const Student = sequelize.define('Student', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: true, // Ensure this is the only unique constraint
   },
   password: {
     type: DataTypes.STRING,

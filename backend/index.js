@@ -9,6 +9,7 @@ const assignmentRoutes = require('./routes/assignments');
 const submissionRoutes = require('./routes/submissions');
 const classRoutes = require('./routes/classes'); // Import classes route
 const enrollmentRoutes = require('./routes/enrollments'); // Import enrollments route
+const userRoutes = require('./routes/users'); // Import user routes
 
 const app = express();
 const port = 3000;
@@ -20,6 +21,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/classes', classRoutes); // Use classes route
 app.use('/api/enrollments', enrollmentRoutes); // Use enrollments route
+app.use('/api/users', userRoutes); // Use user routes
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

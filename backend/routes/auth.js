@@ -8,9 +8,13 @@ const authenticateToken = require('../middleware/authenticate'); // Import the a
 
 const router = express.Router();
 
-router.post('/register', hashPassword, async (req, res) => {
+router.post('/register', authenticateToken(), hashPassword, async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    const existingTeachers = await Teacher.count();
+    if (existingTeachers > 0 && req.user.role !== 'teacher') {
+      return res.status(403).send({ error: 'Only teachers can register new users' });
+    }
     console.log('Register attempt:', { name, email, password, role }); // Add logging
     const Model = role === 'teacher' ? Teacher : Student;
     const user = await Model.create({ name, email, password, role });

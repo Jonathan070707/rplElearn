@@ -57,7 +57,7 @@ function TeacherDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const handleCreateClass = async (e) => {
     e.preventDefault();
@@ -91,6 +91,7 @@ function TeacherDashboard() {
       <h1>Teacher Dashboard</h1>
       <p>Welcome, {username}</p> {/* Display the username */}
       <button onClick={handleLogout}>Logout</button> {/* Add logout button */}
+      <button onClick={() => navigate('/user-management')}>Manage Users</button> {/* Add button to redirect to user management page */}
       <h2>Classes</h2>
       <ul>
         {classes.map((cls) => (

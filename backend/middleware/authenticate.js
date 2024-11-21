@@ -1,27 +1,29 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Ensure this matches the secret used during login
+const Teacher = require('../models/Teacher');
+const Student = require('../models/Student');
 
-const authenticate = (roles) => {
-  return (req, res, next) => {
-    const authHeader = req.header('Authorization');
-    if (!authHeader) {
-      return res.status(401).send({ error: 'Access denied' });
+const authenticateToken = () => {
+  return async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).send({ error: 'Unauthorized' });
     }
-    const token = authHeader.replace('Bearer ', '');
+
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Decoded token:', decoded); // Add logging
-      if (roles && !roles.includes(decoded.role)) {
-        console.log('Role mismatch:', decoded.role); // Add logging
-        return res.status(403).send({ error: 'Forbidden' });
+      const user = await (decoded.role === 'teacher' ? Teacher : Student).findByPk(decoded.id);
+      if (!user) {
+        return res.status(401).send({ error: 'Unauthorized' });
       }
-      req.user = decoded;
+      req.user = user;
       next();
-    } catch (err) {
-      console.log('Invalid token:', err); // Add logging
-      res.status(400).send({ error: 'Invalid token' });
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      res.status(401).send({ error: 'Unauthorized' });
     }
   };
 };
 
-module.exports = authenticate;
+module.exports = authenticateToken;

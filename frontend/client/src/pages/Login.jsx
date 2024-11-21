@@ -32,7 +32,7 @@ function Login() {
 
   return (
     <div>
-      <h>Tambah ganti password dan cara yang bagus buat bikin akun baru untuk user</h>
+      <h>Login</h>
       <form onSubmit={handleSubmit}>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />

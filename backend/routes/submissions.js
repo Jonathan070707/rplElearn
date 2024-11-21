@@ -147,14 +147,26 @@ router.get('/download/:submission_id', authenticate(['teacher', 'student']), asy
   try {
     const submission = await Submission.findByPk(req.params.submission_id);
     if (!submission) {
+      console.error('Submission not found:', req.params.submission_id);
       return res.status(404).send({ error: 'Submission not found' });
     }
     if (req.user.role === 'student' && submission.student_id !== req.user.id) {
+      console.error('Forbidden access by student:', req.user.id);
       return res.status(403).send({ error: 'Forbidden' });
     }
+    if (!submission.file_path) {
+      console.error('No file path found for submission:', req.params.submission_id);
+      return res.status(400).send({ error: 'No file path found for submission' });
+    }
     const filePath = path.join(__dirname, '..', submission.file_path);
-    res.download(filePath, submission.original_file_name);
+    res.download(filePath, submission.original_file_name, (err) => {
+      if (err) {
+        console.error('Error downloading file:', err);
+        res.status(400).send({ error: 'Failed to download file' });
+      }
+    });
   } catch (error) {
+    console.error('Error in file download route:', error);
     res.status(400).send(error);
   }
 });

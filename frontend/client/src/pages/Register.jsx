@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,14 +6,41 @@ function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState('student'); // Default to student
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Ensure only teachers can access this page
+    const verifyRole = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      try {
+        const userResponse = await axios.get('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (userResponse.data.role !== 'teacher') {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Failed to verify user role', error);
+        navigate('/login');
+      }
+    };
+
+    verifyRole();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/auth/register', { name, email, password, role });
+      const token = localStorage.getItem('token');
+      await axios.post('/api/auth/register', { name, email, password, role }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       navigate('/login');
     } catch (error) {
       setError('Registration failed');

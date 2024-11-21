@@ -13,19 +13,27 @@ const Lesson = sequelize.define('Lesson', {
   },
   description: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true, // Make optional
   },
   content: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true, // Make optional
   },
   teacher_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  class_id: { // Add class_id field
+  class_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  file_path: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  original_file_name: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 });
 

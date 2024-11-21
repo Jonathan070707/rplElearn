@@ -8,11 +8,11 @@ function ClassDetails() {
   const [classDetails, setClassDetails] = useState({});
   const [lessons, setLessons] = useState([]);
   const [assignments, setAssignments] = useState([]);
-  const [newLesson, setNewLesson] = useState({ title: '', description: '', content: '' });
+  const [newLesson, setNewLesson] = useState({ title: '', description: '', content: '', file: null });
   const [newAssignment, setNewAssignment] = useState({ title: '', description: '', due_date: '' });
   const [editingAssignment, setEditingAssignment] = useState({ title: '', description: '', due_date: '' }); // Separate state for editing assignment
   const [editingAssignmentId, setEditingAssignmentId] = useState(null); // Add state for editing assignment
-  const [editingLesson, setEditingLesson] = useState({ title: '', description: '', content: '' }); // Separate state for editing lesson
+  const [editingLesson, setEditingLesson] = useState({ title: '', description: '', content: '', file: null }); // Separate state for editing lesson
   const [editingLessonId, setEditingLessonId] = useState(null); // Add state for editing lesson
   const [userRole, setUserRole] = useState('');
   const [file, setFile] = useState(null);
@@ -90,19 +90,47 @@ function ClassDetails() {
     fetchData();
   }, [classId, navigate, userRole]);
 
+  const handleFileChange = (e, id, type) => {
+    const file = e.target.files[0];
+    if (type === 'lesson') {
+      if (id) {
+        setEditingLesson({ ...editingLesson, file });
+      } else {
+        setNewLesson({ ...newLesson, file });
+      }
+    } else if (type === 'assignment') {
+      setSubmissionForms({ ...submissionForms, [id]: { ...submissionForms[id], file } });
+    }
+  };
+
   const handleCreateLesson = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('title', newLesson.title);
+      if (newLesson.description) {
+        formData.append('description', newLesson.description);
+      }
+      if (newLesson.content) {
+        formData.append('content', newLesson.content);
+      }
+      if (newLesson.file) {
+        formData.append('file', newLesson.file);
+      }
       const userResponse = await axios.get('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const teacherId = userResponse.data.id;
-      const response = await axios.post(`/api/lessons/class/${classId}/lessons`, { ...newLesson, class_id: classId, teacher_id: teacherId }, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.post(`/api/lessons/class/${classId}/lessons`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setLessons([...lessons, response.data]);
-      setNewLesson({ title: '', description: '', content: '' });
+      setNewLesson({ title: '', description: '', content: '', file: null });
+      document.getElementById('lessonFileInput').value = ''; // Reset file input
     } catch (error) {
       console.error('Failed to create lesson', error);
     }
@@ -178,14 +206,28 @@ function ClassDetails() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`/api/lessons/class/${classId}/lessons/${lessonId}`, editingLesson, {
-        headers: { Authorization: `Bearer ${token}` },
+      const formData = new FormData();
+      formData.append('title', editingLesson.title);
+      if (editingLesson.description) {
+        formData.append('description', editingLesson.description);
+      }
+      if (editingLesson.content) {
+        formData.append('content', editingLesson.content);
+      }
+      if (editingLesson.file) {
+        formData.append('file', editingLesson.file);
+      }
+      const response = await axios.put(`/api/lessons/class/${classId}/lessons/${lessonId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setLessons(lessons.map(lesson =>
         lesson.id === lessonId ? response.data : lesson
       ));
       setEditingLessonId(null);
-      setEditingLesson({ title: '', description: '', content: '' });
+      setEditingLesson({ title: '', description: '', content: '', file: null });
     } catch (error) {
       console.error('Failed to edit lesson', error);
     }
@@ -202,10 +244,6 @@ function ClassDetails() {
     } catch (error) {
       console.error('Failed to delete lesson', error);
     }
-  };
-
-  const handleFileChange = (e, assignmentId) => {
-    setSubmissionForms({ ...submissionForms, [assignmentId]: { ...submissionForms[assignmentId], file: e.target.files[0] } });
   };
 
   const handleTextChange = (e, assignmentId) => {
@@ -243,6 +281,7 @@ function ClassDetails() {
           : assignment
       ));
       setStudentSubmissions([...studentSubmissions, response.data]); // Update student submissions
+      window.location.reload(); // Refresh the page
     } catch (error) {
       if (error.response && error.response.data.error === 'You have already submitted this assignment') {
         alert('You have already submitted this assignment');
@@ -389,25 +428,37 @@ function ClassDetails() {
     }
   };
 
-  const handleDownloadFile = async (submissionId, fileName) => {
+  const handleDownloadFile = async (id, fileName, type) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`/api/submissions/download/${submissionId}`, {
+      const url = type === 'lesson' ? `/api/lessons/download/${id}` : `/api/submissions/download/${id}`;
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const blob = new Blob([response.data]);
+      const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = downloadUrl;
       link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
       console.error('Failed to download file', error);
+      if (error.response && error.response.data) {
+        alert(`Failed to download file: ${error.response.data.error}`);
+      } else {
+        alert('Failed to download file');
+      }
     }
   };
 
+  const hasSubmitted = (assignmentId) => {
+    return studentSubmissions.some(submission => submission.assignment_id === assignmentId);
+  };
+
+  // halaman
   return (
     <div>
       <h1>{classDetails.name}</h1>
@@ -441,6 +492,13 @@ function ClassDetails() {
             <h3>{lesson.title}</h3>
             <p>{lesson.description}</p>
             <p>{lesson.content}</p>
+            {lesson.file_path && (
+              <p>
+                <a href="#" onClick={() => handleDownloadFile(lesson.id, lesson.original_file_name, 'lesson')}>
+                  {lesson.original_file_name}
+                </a>
+              </p>
+            )}
             {userRole === 'teacher' && (
               <>
                 <button onClick={() => handleEditLesson(lesson)}>Edit Lesson</button>
@@ -459,14 +517,13 @@ function ClassDetails() {
                       value={editingLesson.description}
                       onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
                       placeholder="Edit Lesson Description"
-                      required
                     />
                     <textarea
                       value={editingLesson.content}
                       onChange={(e) => setEditingLesson({ ...editingLesson, content: e.target.value })}
                       placeholder="Edit Lesson Content"
-                      required
                     />
+                    <input type="file" id="lessonFileInput" onChange={(e) => handleFileChange(e, lesson.id, 'lesson')} />
                     <button type="submit">Save Changes</button>
                     <button type="button" onClick={() => setEditingLessonId(null)}>Cancel Edit</button>
                   </form>
@@ -490,14 +547,13 @@ function ClassDetails() {
             value={newLesson.description}
             onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
             placeholder="Lesson Description"
-            required
           />
           <textarea
             value={newLesson.content}
             onChange={(e) => setNewLesson({ ...newLesson, content: e.target.value })}
             placeholder="Lesson Content"
-            required
           />
+          <input type="file" id="lessonFileInput" onChange={(e) => handleFileChange(e, null, 'lesson')} />
           <button type="submit">Create Lesson</button>
         </form>
       )}
@@ -514,7 +570,7 @@ function ClassDetails() {
               {userRole === 'student' && (
                 <>
                   <button onClick={() => toggleSubmissionsVisibility(assignment.id)}>
-                    {showSubmissions[assignment.id] ? 'Hide Submissions' : 'Show Submissions'}
+                    {showSubmissions[assignment.id] ? 'Hide Submissions' : hasSubmitted(assignment.id) ? 'Show Submissions' : 'Make a Submission'}
                   </button>
                   {showSubmissions[assignment.id] && (
                     <>
@@ -522,7 +578,7 @@ function ClassDetails() {
                         studentSubmissions.filter(submission => submission.assignment_id === assignment.id).map((submission) => (
                           <div key={submission.id}>
                             <p>Submission file: {submission.file_path ? (
-                              <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name)}>
+                              <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name, 'submission')}>
                                 {submission.original_file_name}
                               </a>
                             ) : null}</p>
@@ -535,7 +591,7 @@ function ClassDetails() {
                             <button onClick={() => handleDeleteSubmission(submission.id)}>Delete</button>
                             {editingSubmissionId === submission.id && (
                               <form onSubmit={(e) => handleEditSubmission(e, submission.id, assignment.id)}>
-                                <input type="file" onChange={(e) => handleFileChange(e, assignment.id)} />
+                                <input type="file" onChange={(e) => handleFileChange(e, assignment.id, 'assignment')} />
                                 <textarea
                                   value={submissionForms[assignment.id]?.textContent || ''}
                                   onChange={(e) => handleTextChange(e, assignment.id)}
@@ -549,7 +605,7 @@ function ClassDetails() {
                         ))
                       ) : (
                         <form onSubmit={(e) => handleSubmitAssignment(e, assignment.id)}>
-                          <input type="file" onChange={(e) => handleFileChange(e, assignment.id)} />
+                          <input type="file" onChange={(e) => handleFileChange(e, assignment.id, 'assignment')} />
                           <textarea
                             value={submissionForms[assignment.id]?.textContent || ''}
                             onChange={(e) => handleTextChange(e, assignment.id)}
@@ -603,7 +659,7 @@ function ClassDetails() {
                         <li key={submission.id}>
                           <p>Student: {submission.Student.name}</p>
                           <p>Submission file: {submission.file_path ? (
-                            <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name)}>
+                            <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name, 'submission')}>
                               {submission.original_file_name}
                             </a>
                           ) : 'No file'}</p>

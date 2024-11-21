@@ -7,6 +7,7 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import ClassDetails from './pages/ClassDetails';
 import ViewSubmissions from './pages/ViewSubmissions';
 import Grades from './pages/Grades'; // Import the Grades component
+import UserManagement from './pages/UserManagement'; // Import the UserManagement component
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/assignments/:assignmentId/submissions" element={<ViewSubmissions />} />
         <Route path="/class/:classId/assignments/:assignmentId/submissions" element={<ViewSubmissions />} />
         <Route path="/class/:classId/grades" element={<Grades />} /> {/* Add the Grades route */}
+        <Route path="/user-management" element={<UserManagement />} /> {/* Add the UserManagement route */}
       </Routes>
     </Router>
   );
