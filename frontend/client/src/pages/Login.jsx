@@ -31,14 +31,25 @@ function Login() {
   };
 
   return (
-    <div>
-      <h>Login</h>
-      <form onSubmit={handleSubmit}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-        <button type="submit">Login</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
+    <div className='custom-gradient-login-bg h-screen'>
+        <h1 className='mx-4 text-yellow-500 text-6xl text-center p-5 pt-8'>Kidemy</h1>
+        <h2 className='mx-4 text-white text-5xl p-5 mb-5 text-center'>Sign In</h2>
+      <div className='flex justify-center items-center'>
+        <div className='box-border w-loginwidthbox h-loginheightbox p-7 bg-white rounded-3xl rounded text-lg'>
+          <form className='mx-4 space-y-6 ' onSubmit={handleSubmit}>
+            <h1 className='text-indigo-800 text-3xl'>Selamat datang</h1>
+            <h2 className='text-gray-500 text-1xl'>Silahkan login untuk lanjut</h2>
+            <h3 className='text-indigo-800'> Email</h3>
+            <input className='placeholder-gray-500 hover:placeholder-blue-400 border-2 border-grey-500 rounded-lg' type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder=" Masukkan email" required />
+            <br ></br>
+            <h3 className='text-indigo-800'> Password</h3>
+            <input className='placeholder-gray-500 hover:placeholder-blue-400 border-2 border-grey-500 rounded-lg' type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Masukkan password" required />
+            <br  />
+            <button className='mx-auto text-white box-border h-277 w-40 p-2 rgb(145,143,242) bg-gradient-top-login-button flex flex-col items-center rounded-xl' type="submit">Login</button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

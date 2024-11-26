@@ -14,6 +14,8 @@ function StudentDashboard() {
   const [username, setUsername] = useState('');
   const [calendarAssignments, setCalendarAssignments] = useState([]); // Add state for calendar assignments
   const [hoveredDate, setHoveredDate] = useState(null); // Add state for hovered date
+  const [searchTerm, setSearchTerm] = useState(''); // Add state for search term
+  const [searchResult, setSearchResult] = useState([]); // Add state for search result
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +37,7 @@ function StudentDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setClasses(classResponse.data);
+        setSearchResult(classResponse.data); // Show all classes initially
 
         const lessonResponse = await axios.get('/api/lessons/student/me', {
           headers: { Authorization: `Bearer ${token}` },
@@ -87,9 +90,11 @@ function StudentDashboard() {
     navigate(`/class/${classId}`);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+  const handleSearch = (searchTerm) => {
+    const filteredClasses = classes.filter(cls => 
+      new RegExp(searchTerm, 'i').test(cls.name) // Filter classes by search term using regex
+    );
+    setSearchResult(filteredClasses);
   };
 
   const tileContent = ({ date, view }) => {
@@ -123,27 +128,42 @@ function StudentDashboard() {
 
   return (
     <div>
-      <h1>Student Dashboard</h1>
-      <p>Welcome, {username}</p> {/* Display the username */}
-      <button onClick={handleLogout}>Logout</button> {/* Add logout button */}
-      <h2>Classes</h2>
-      <ul>
-        {classes.map((cls) => (
-          <li key={cls.id} onClick={() => handleClassClick(cls.id)} style={{ cursor: 'pointer' }}>
-            {cls.name}
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={handleEnroll}>
-        <input
-          type="text"
-          value={enrollmentCode}
-          onChange={(e) => setEnrollmentCode(e.target.value)}
-          placeholder="Class Enrollment Code"
-          required
-        />
-        <button type="submit">Enroll</button>
-      </form>
+      <div className='text-center custom-gradient-login-bg text-white text-xl p-2 border-t-4 border-blue-500'>
+        <div className=' text-3xl space-y-5'>
+          <input className='border-gray-500 hover:bg-gray-200 rounded-lg text-black p-1 '
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              handleSearch(e.target.value); // Automatically apply search when typing
+            }}
+            placeholder="Cari kelas disini"
+          />
+        </div>      
+      </div>
+      <div className='space-y-3 text-2xl mx-8'>
+        <form onSubmit={handleEnroll}>
+          <input
+            type="text"
+            value={enrollmentCode}
+            onChange={(e) => setEnrollmentCode(e.target.value)}
+            placeholder="Class Enrollment Code"
+            required
+          />
+          <button type="submit">Enroll</button>
+        </form>
+        <h2 className='flex justify-center items-center bg-slate-800 rounded-xl p-2 text-zinc-300'>Daftar Kelas - Mata Pelajaran:</h2>
+        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'>
+          {searchResult.map((cls) => (
+            <li key={cls.id} className='bg-blue-500 rounded-lg p-3 text-gray-300 hover:bg-slate-800'>
+              <div className='flex flex-col'>
+                <span className='hover:text-sky-800 truncate-2-lines' style={{ cursor: 'pointer' }} onClick={() => handleClassClick(cls.id)}>{cls.name}</span>
+                {/* Display enrollment code */}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
       <h2>Assignment Calendar</h2>
       <Calendar
         tileContent={tileContent}

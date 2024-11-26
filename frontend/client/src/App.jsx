@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
@@ -8,10 +8,23 @@ import ClassDetails from './pages/ClassDetails';
 import ViewSubmissions from './pages/ViewSubmissions';
 import Grades from './pages/Grades'; // Import the Grades component
 import UserManagement from './pages/UserManagement'; // Import the UserManagement component
+import NavbarComponent from './components/navbarComponent';
 
 function App() {
   return (
     <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  const hideNavbar = location.pathname === '/login';
+
+  return (
+    <>
+      {!hideNavbar && <NavbarComponent />}
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
@@ -24,7 +37,7 @@ function App() {
         <Route path="/class/:classId/grades" element={<Grades />} /> {/* Add the Grades route */}
         <Route path="/user-management" element={<UserManagement />} /> {/* Add the UserManagement route */}
       </Routes>
-    </Router>
+    </>
   );
 }
 
