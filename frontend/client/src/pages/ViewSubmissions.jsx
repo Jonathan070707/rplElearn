@@ -104,21 +104,23 @@ function ViewSubmissions() {
   };
 
   return (
-    <div>
-      <h1>Submissions for {assignmentTitle}</h1> {/* Display the assignment title */}
-      <ul>
+    <div className="p-4 text-xl">
+      <h1 className="text-3xl font-bold mb-4 text-center">Submissions for {assignmentTitle}</h1>
+      <ul className="space-y-4 mx-4 ">
         {submissions.map((submission) => (
-          <li key={submission.id}>
-            <p>Student: {submission.Student.name}</p> {/* Display the student's name */}
-            <p>Submission: {submission.file_path ? (
-              <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name)}>
-                {submission.original_file_name}
-              </a>
-            ) : 'No file'}</p>
+          <li key={submission.id} className="border p-4 rounded-lg shadow">
+            <p className="text-2xl">Student: {submission.Student.name}</p>
+            <p>
+              Submission: {submission.file_path ? (
+                <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name)} className="text-blue-500 hover:underline">
+                  {submission.original_file_name}
+                </a>
+              ) : 'No file'}
+            </p>
             <p>{submission.text_content}</p>
             <p>Grade 0-100: {submission.student_grade}</p>
             {userRole === 'teacher' && (
-              <form onSubmit={(e) => handleGradeSubmission(e, submission.id)}>
+              <form onSubmit={(e) => handleGradeSubmission(e, submission.id)} className="mt-2">
                 <input
                   type="number"
                   value={grades[submission.id] || ''}
@@ -127,14 +129,19 @@ function ViewSubmissions() {
                   min="0"
                   max="100"
                   required
+                  className="border p-2 rounded mr-2"
                 />
-                <button type="submit">Grade Submission</button>
+                <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
+                  Grade Submission
+                </button>
               </form>
             )}
           </li>
         ))}
       </ul>
-      <button onClick={() => navigate(-1)}>Back</button>
+      <button onClick={() => navigate(-1)} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
+        Back
+      </button>
     </div>
   );
 }

@@ -35,8 +35,8 @@ function Login() {
         <h1 className='mx-4 text-yellow-500 text-6xl text-center p-5 pt-8'>Kidemy</h1>
         <h2 className='mx-4 text-white text-5xl p-5 mb-5 text-center'>Sign In</h2>
       <div className='flex justify-center items-center'>
-        <div className='box-border w-loginwidthbox h-loginheightbox p-7 bg-white rounded-3xl rounded text-lg'>
-          <form className='mx-4 space-y-6 ' onSubmit={handleSubmit}>
+        <div className='box-border p-7 bg-white rounded-3xl rounded text-lg'>
+          <form className='mx-4 p-4 space-y-6 ' onSubmit={handleSubmit}>
             <h1 className='text-indigo-800 text-3xl'>Selamat datang</h1>
             <h2 className='text-gray-500 text-1xl'>Silahkan login untuk lanjut</h2>
             <h3 className='text-indigo-800'> Email</h3>

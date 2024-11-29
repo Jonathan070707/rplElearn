@@ -16,6 +16,14 @@ background: linear-gradient(180deg, rgba(145,143,242,1) 0%, rgba(170,137,223,0.5
 background: linear-gradient(180deg, rgba(145,183,242,1) 0%, rgba(170,183,223,0.55) 67%, rgba(149, 183, 255, 0.1) 100%);
 }
 
+.bg-classdetails-buatkelas-buattugas {
+  background: linear-gradient(180deg, rgba(30,41,59,1) 0%, rgba(30,41,59,0.9782082324455206) 50%, rgba(30,41,59,0.837772397094431) 100%);
+}
+
+.bg-clasname-header{
+  background: linear-gradient(180deg, rgba(30,41,59,1) 0%, rgba(30,41,59,0.9782082324455206) 50%, rgba(30,41,59,0.837772397094431) 100%);
+}
+
 .app-navbar {
   display: flex;
   justify-content: space-between;
@@ -53,10 +61,8 @@ background: linear-gradient(180deg, rgba(145,183,242,1) 0%, rgba(170,183,223,0.5
   position: absolute; /* Position the dropdown menu absolutely */
   top: 100%; /* Position it below the navbar */
   left: 0; /* Align it to the left of the navbar */
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: #0c1f33;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   z-index: 1000; /* Ensure it appears above other elements */
 }
@@ -64,12 +70,13 @@ background: linear-gradient(180deg, rgba(145,183,242,1) 0%, rgba(170,183,223,0.5
 .dropdown-item {
   padding: 10px 20px;
   text-decoration: none;
-  color: black;
+  color: #d1d5db;
   display: block;
 }
 
 .dropdown-item:hover {
-  background-color: #f6f8fa;
+  background-color: #1e293b;
+  color: #075985;
 }
 
 .truncate-2-lines {

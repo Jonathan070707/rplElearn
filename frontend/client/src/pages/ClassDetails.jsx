@@ -25,6 +25,18 @@ function ClassDetails() {
   const [submissionForms, setSubmissionForms] = useState({}); // Add state to manage submission forms for each assignment
   const [editingClassName, setEditingClassName] = useState(''); // Add state for editing class name
   const [isEditingClass, setIsEditingClass] = useState(false); // Add state to toggle class name editing
+  const [showCreateLesson, setShowCreateLesson] = useState(true); // Add state to toggle create lesson form
+  const [showCreateAssignment, setShowCreateAssignment] = useState(false); // Add state to toggle create assignment form
+  const [showModal, setShowModal] = useState(false); // Add state for modal visibility
+  const [showLessons, setShowLessons] = useState(true); // Add state to toggle lessons visibility
+  const [showAssignments, setShowAssignments] = useState(false); // Add state to toggle assignments visibility
+  const [showEditAssignmentModal, setShowEditAssignmentModal] = useState(false); // Add state for edit assignment modal
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // Add state for success modal
+  const [showFailureModal, setShowFailureModal] = useState(false); // Add state for failure modal
+
+  const handleToggleEditAssignmentModal = () => {
+    setShowEditAssignmentModal(!showEditAssignmentModal);
+  };
 
   useEffect(() => {
     const verifyRole = async () => {
@@ -131,8 +143,12 @@ function ClassDetails() {
       setLessons([...lessons, response.data]);
       setNewLesson({ title: '', description: '', content: '', file: null });
       document.getElementById('lessonFileInput').value = ''; // Reset file input
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to create lesson', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -149,8 +165,12 @@ function ClassDetails() {
       });
       setAssignments([...assignments, response.data]);
       setNewAssignment({ title: '', description: '', due_date: '' });
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to create assignment', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -175,8 +195,13 @@ function ClassDetails() {
       ));
       setEditingAssignmentId(null);
       setEditingAssignment({ title: '', description: '', due_date: '' });
+      setShowEditAssignmentModal(false); // Close the modal
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to edit assignment', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -187,9 +212,12 @@ function ClassDetails() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAssignments(assignments.filter(assignment => assignment.id !== assignmentId));
-      alert('Assignment deleted successfully');
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to delete assignment', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -228,8 +256,12 @@ function ClassDetails() {
       ));
       setEditingLessonId(null);
       setEditingLesson({ title: '', description: '', content: '', file: null });
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to edit lesson', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -240,9 +272,12 @@ function ClassDetails() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLessons(lessons.filter(lesson => lesson.id !== lessonId));
-      alert('Lesson deleted successfully');
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to delete lesson', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -273,7 +308,8 @@ function ClassDetails() {
         },
       });
       setSubmissionForms({ ...submissionForms, [assignmentId]: { file: null, textContent: '' } });
-      alert('Assignment submitted successfully');
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
       // Update the state with the new submission
       setAssignments(assignments.map(assignment => 
         assignment.id === assignmentId 
@@ -287,6 +323,8 @@ function ClassDetails() {
         alert('You have already submitted this assignment');
       } else {
         console.error('Failed to submit assignment', error);
+        setShowFailureModal(true); // Show failure modal
+        setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
       }
     }
   };
@@ -315,7 +353,8 @@ function ClassDetails() {
       });
       setSubmissionForms({ ...submissionForms, [assignmentId]: { file: null, textContent: '' } });
       setEditingSubmissionId(null);
-      alert('Submission edited successfully');
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
       // Update the state with the edited submission
       setAssignments(assignments.map(assignment => 
         assignment.submissions.some(submission => submission.id === submissionId)
@@ -329,6 +368,8 @@ function ClassDetails() {
       )); // Update student submissions
     } catch (error) {
       console.error('Failed to edit submission', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -343,7 +384,8 @@ function ClassDetails() {
       await axios.delete(`/api/submissions/${submissionId}/delete`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('Submission deleted successfully');
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
       // Update the state by removing the deleted submission
       setAssignments(assignments.map(assignment => 
         assignment.submissions.some(submission => submission.id === submissionId)
@@ -353,6 +395,8 @@ function ClassDetails() {
       setStudentSubmissions(studentSubmissions.filter(submission => submission.id !== submissionId)); // Update student submissions
     } catch (error) {
       console.error('Failed to delete submission', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -406,8 +450,12 @@ function ClassDetails() {
       });
       setClassDetails({ ...classDetails, name: response.data.name });
       setIsEditingClass(false);
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
       console.error('Failed to edit class name', error);
+      setShowFailureModal(true); // Show failure modal
+      setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -419,10 +467,13 @@ function ClassDetails() {
           await axios.delete(`/api/classes/${classId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          alert('Class deleted successfully');
           navigate('/teacher-dashboard');
+          setShowSuccessModal(true); // Show success modal
+          setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
         } catch (error) {
           console.error('Failed to delete class', error);
+          setShowFailureModal(true); // Show failure modal
+          setTimeout(() => setShowFailureModal(false), 3000); // Hide after 3 seconds
         }
       }
     }
@@ -458,255 +509,342 @@ function ClassDetails() {
     return studentSubmissions.some(submission => submission.assignment_id === assignmentId);
   };
 
+  const handleToggleModal = () => {
+    setShowModal(!showModal);
+  };
+
   // halaman
   return (
     <div>
-      <h1>{classDetails.name}</h1>
-      {userRole === 'teacher' && (
-        <>
-          {isEditingClass ? (
-            <form onSubmit={handleEditClassNameSubmit}>
-              <input
-                type="text"
-                value={editingClassName}
-                onChange={(e) => setEditingClassName(e.target.value)}
-                placeholder="Edit Class Name"
-                required
-              />
-              <button type="submit">Save Changes</button>
-              <button type="button" onClick={() => setIsEditingClass(false)}>Cancel Edit</button>
-            </form>
-          ) : (
+      {/* tentang kelas */}
+      <div className='bg-clasname-header p-2 text-zinc-300 flex-col border-t-4 border-blue-600 p-3 text-center rounded-xl m-1'>
+        <h1 className=' text-center text-3xl '>{classDetails.name}</h1>
+        {userRole === 'student' && (
+          <button className='hover:text-sky-800 mt-2 text-2xl' onClick={handleShowGrades}>Lihat nilai saya</button>
+        )}
+        <div className='text-xl'>
+          {userRole === 'teacher' && (
             <>
-              <button onClick={handleEditClassName}>Edit Class Name</button>
-              <button onClick={handleDeleteClass}>Delete Class</button>
+              {isEditingClass ? (
+                <form onSubmit={handleEditClassNameSubmit}>
+                  <input className='text-black'
+                    type="text"
+                    value={editingClassName}
+                    onChange={(e) => setEditingClassName(e.target.value)}
+                    placeholder="Ubah nama kelas"
+                    required
+                  />
+                  <br />
+                  <button className='hover:text-sky-800 mr-7' type="submit">Simpan</button>
+                  <button className='hover:text-sky-800' type="button" onClick={() => setIsEditingClass(false)}>Batal</button>
+                </form>
+              ) : (
+                <>
+                  <button className='hover:text-sky-800' onClick={handleEditClassName}>Ubah nama kelas</button>
+                  <br />
+                  <button className='hover:text-sky-800' onClick={handleDeleteClass}>Hapus kelas</button>
+                  <br />
+                  {userRole === 'teacher' && (
+                    <button className='hover:text-sky-800' onClick={handleShowGrades}>Lihat nilai murid-murid</button>
+                  )}
+                  {userRole === 'student' && (
+                    <button className='hover:text-sky-800' onClick={handleShowGrades}>Lihat nilai saya</button>
+                  )}
+                </>
+              )}
             </>
           )}
-        </>
-      )}
-      <p>Welcome, {username}</p> {/* Display the username */}
-      <h2>Lessons</h2>
-      <ul>
-        {lessons.map((lesson) => (
-          <li key={lesson.id}>
-            <h3>{lesson.title}</h3>
-            <p>{lesson.description}</p>
-            <p>{lesson.content}</p>
-            {lesson.file_path && (
-              <p>
-                <a href="#" onClick={() => handleDownloadFile(lesson.id, lesson.original_file_name, 'lesson')}>
-                  {lesson.original_file_name}
-                </a>
-              </p>
-            )}
-            {userRole === 'teacher' && (
-              <>
-                <button onClick={() => handleEditLesson(lesson)}>Edit Lesson</button>
-                <button onClick={() => handleDeleteLesson(lesson.id)}>Delete Lesson</button>
-                {editingLessonId === lesson.id && (
-                  <form onSubmit={(e) => handleEditLessonSubmit(e, lesson.id)}>
-                    <input
-                      type="text"
-                      value={editingLesson.title}
-                      onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
-                      placeholder="Edit Lesson Title"
-                      required
-                    />
-                    <input
-                      type="text"
-                      value={editingLesson.description}
-                      onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
-                      placeholder="Edit Lesson Description"
-                    />
-                    <textarea
-                      value={editingLesson.content}
-                      onChange={(e) => setEditingLesson({ ...editingLesson, content: e.target.value })}
-                      placeholder="Edit Lesson Content"
-                    />
-                    <input type="file" id="lessonFileInput" onChange={(e) => handleFileChange(e, lesson.id, 'lesson')} />
-                    <button type="submit">Save Changes</button>
-                    <button type="button" onClick={() => setEditingLessonId(null)}>Cancel Edit</button>
-                  </form>
-                )}
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-      {userRole === 'teacher' && (
-        <form onSubmit={handleCreateLesson}>
-          <input
-            type="text"
-            value={newLesson.title}
-            onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
-            placeholder="Lesson Title"
-            required
-          />
-          <input
-            type="text"
-            value={newLesson.description}
-            onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
-            placeholder="Lesson Description"
-          />
-          <textarea
-            value={newLesson.content}
-            onChange={(e) => setNewLesson({ ...newLesson, content: e.target.value })}
-            placeholder="Lesson Content"
-          />
-          <input type="file" id="lessonFileInput" onChange={(e) => handleFileChange(e, null, 'lesson')} />
-          <button type="submit">Create Lesson</button>
-        </form>
-      )}
-      <h2>Assignments</h2>
-      <ul>
-        {assignments.map((assignment) => {
-          const isPastDue = new Date(assignment.due_date) < new Date();
-          return (
-            <li key={assignment.id}>
-              <h3>{assignment.title}</h3>
-              <p>{assignment.description}</p>
-              <p>Due Date: {new Date(assignment.due_date).toLocaleDateString()}</p>
-              {isPastDue && <p style={{ color: 'red' }}>This assignment is past its due date.</p>}
-              {userRole === 'student' && (
+        </div>
+      </div>  
+      <br />
+      
+      {/* buat materi dan tugas */}
+
+      <div className='flex justify-center items-center text-3xl mb-4'>
+        {userRole === 'teacher' && (
+          <button onClick={handleToggleModal} className="bg-clasname-header text-zinc-300 p-2 rounded-xl" type="button">
+            Buat materi dan tugas
+          </button>
+        )}
+      </div>
+
+      {showModal && (
+        <div id="buat-materi-tugas-modal" tabIndex="-1" aria-hidden="true" className='fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-black bg-opacity-50'>
+          <div className="relative p-4 w-full max-w-2xl max-h-full">
+            <div className='relative bg-white rounded-lg shadow bg-clasname-header rounded-xl p-3'>
+              {userRole === 'teacher' && (
                 <>
-                  <button onClick={() => toggleSubmissionsVisibility(assignment.id)}>
-                    {showSubmissions[assignment.id] ? 'Hide Submissions' : hasSubmitted(assignment.id) ? 'Show Submissions' : 'Make a Submission'}
+                  <div className='text-center text-2xl relative'>
+                    <button className={`mx-5 p-2 ${showCreateLesson ? 'text-sky-800' : 'text-zinc-300'} bg-slate-800 hover:text-sky-800 rounded-xl`} onClick={() => { setShowCreateLesson(true); setShowCreateAssignment(false); }}>
+                      Buat materi
+                    </button>
+                    <button className={`mx-5 p-2 ${showCreateAssignment ? 'text-sky-800' : 'text-zinc-300'} bg-slate-800 hover:text-sky-800 rounded-xl`} onClick={() => { setShowCreateAssignment(true); setShowCreateLesson(false); }}>
+                      Buat tugas
+                    </button>
+                  </div>
+                  {showCreateLesson && (
+                    <form className='text-center space-y-4 text-xl p-3' onSubmit={handleCreateLesson}>
+                      <input id='buat-kelas' className='bg-gray-200 rounded-lg w-full p-2' 
+                        type="text"
+                        value={newLesson.title}
+                        onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+                        placeholder="Lesson Title"
+                        required
+                      /> <br />
+                      <input className='bg-gray-200 rounded-lg w-full p-2'
+                        type="text"
+                        value={newLesson.description}
+                        onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
+                        placeholder="Lesson Description"
+                      /> <br />
+                      <textarea className='bg-gray-200 rounded-lg w-full p-2'
+                        value={newLesson.content}
+                        onChange={(e) => setNewLesson({ ...newLesson, content: e.target.value })}
+                        placeholder="Lesson Content"
+                      /> <br />
+                      <input className='text-zinc-300' type="file" id="lessonFileInput" onChange={(e) => handleFileChange(e, null, 'lesson')} /> <br />
+                      <button className='text-zinc-300 bg-slate-800 hover:text-sky-800 hover:bg-custom-gradient-login-bg w-full p-2 rounded-lg' type="submit">Create Lesson</button>
+                    </form>
+                  )}
+                  {showCreateAssignment && (
+                    <form className='text-center space-y-4 text-xl p-3' onSubmit={handleCreateAssignment}>
+                      <input className='bg-gray-200 rounded-lg w-full p-2'
+                        type="text"
+                        value={newAssignment.title}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
+                        placeholder="New Assignment Title"
+                        required
+                      /> <br />
+                      <input className='bg-gray-200 rounded-lg w-full p-2'
+                        type="text"
+                        value={newAssignment.description}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, description: e.target.value })}
+                        placeholder="New Assignment Description"
+                        required
+                      /> <br />
+                      <input className='bg-gray-200 rounded-lg w-full p-2'
+                        type="date"
+                        value={newAssignment.due_date}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, due_date: e.target.value })}
+                        placeholder="New Due Date"
+                        required
+                      /> <br />
+                      <button className='bg-slate-800 text-zinc-300 hover:text-sky-800 hover:bg-custom-gradient-login-bg w-full p-2 rounded-lg' type="submit">Create Assignment</button>
+                    </form>
+                  )}
+                  <button onClick={handleToggleModal} className='mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full'>
+                    Cancel
                   </button>
-                  {showSubmissions[assignment.id] && (
-                    <>
-                      {studentSubmissions.filter(submission => submission.assignment_id === assignment.id).length > 0 ? (
-                        studentSubmissions.filter(submission => submission.assignment_id === assignment.id).map((submission) => (
-                          <div key={submission.id}>
-                            <p>Submission file: {submission.file_path ? (
+                </>
+              )}
+  
+          </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add buttons to toggle lessons and assignments */}
+      <div className='flex justify-center items-center border-t-4 mx-5 p-4 text-3xl'>
+        <button 
+          onClick={() => { setShowLessons(true); setShowAssignments(false); }} 
+          className={`bg-clasname-header p-2 rounded-xl ${showLessons ? 'text-sky-800' : 'text-zinc-300'}`} 
+          type="button"
+        >
+          Lihat materi
+        </button>
+        <button 
+          onClick={() => { setShowLessons(false); setShowAssignments(true); }} 
+          className={`bg-clasname-header p-2 rounded-xl ml-4 ${showAssignments ? 'text-sky-800' : 'text-zinc-300'}`} 
+          type="button"
+        >
+          Lihat tugas
+        </button>
+      </div>
+
+      {/* list materi dan tugas */}
+      {showLessons && (
+        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'>
+          {lessons.map((lesson) => (
+            <li key={lesson.id} className='border shadow border-gray-500 rounded-xl m-4 max-h-64 overflow-y-auto'>
+              <div className='p-2'>
+                <h3 className='m-2 break-words text-2xl border-b-2 p-1 border-sky-800'>{lesson.title}</h3>
+                <p className='m-2 break-words text-xl'>{lesson.description}</p>
+                <p className='m-2 break-words'>{lesson.content}</p>
+                {lesson.file_path && (
+                  <p className='text-sky-800 m-2 break-words'>
+                    <a href="#" onClick={() => handleDownloadFile(lesson.id, lesson.original_file_name, 'lesson')}>
+                      {lesson.original_file_name}
+                    </a>
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className='text-center mx-4 text-2xl '>
+      {showAssignments && (
+        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'>
+          {assignments.map((assignment) => {
+            const isPastDue = new Date(assignment.due_date) < new Date();
+            return (
+              <li key={assignment.id} className='border border-gray-500 shadow rounded-xl m-4 max-h-64 overflow-y-auto p-2 space-y-2'>
+                <h3 className='border-b-4  p-2 rounded-xl' >{assignment.title}</h3>
+                <p>{assignment.description}</p>
+                <p >Due Date: {new Date(assignment.due_date).toLocaleDateString()}</p>
+                {isPastDue && <p style={{ color: 'red' }}>Telah lewat batas waktu.</p>
+                }
+                <div className='border-sky-900 border-y-4 rounded-xl'>
+                {userRole === 'student' && (
+                  <>                
+                    <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' onClick={() => toggleSubmissionsVisibility(assignment.id)}>
+                      {showSubmissions[assignment.id] ? 'Hide Submissions' : hasSubmitted(assignment.id) ? 'Show Submissions' : 'Make a Submission'}
+                    </button>
+                    {showSubmissions[assignment.id] && (
+                      <>
+                        {studentSubmissions.filter(submission => submission.assignment_id === assignment.id).length > 0 ? (
+                          studentSubmissions.filter(submission => submission.assignment_id === assignment.id).map((submission) => (
+                            <div key={submission.id}>
+                              <p className='m-2'>Submission file (pdf, docs, docx): {submission.file_path ? (
+                                <a className='text-sky-800' href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name, 'submission')}>
+                                  {submission.original_file_name}
+                                </a>
+                              ) : null}</p>
+                              <p>{submission.text_content}</p>
+                              <p className='m-2' >Grade: {submission.student_grade}</p>
+                              <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' onClick={() => {
+                                setEditingSubmissionId(submission.id);
+                                setSubmissionForms({ ...submissionForms, [assignment.id]: { file: null, textContent: submission.text_content } });
+                              }}>Edit</button>
+                              <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' onClick={() => handleDeleteSubmission(submission.id)}>
+                                Delete
+                              </button>
+                              {editingSubmissionId === submission.id && (
+                                <form onSubmit={(e) => handleEditSubmission(e, submission.id, assignment.id)}>
+                                  <input type="file" onChange={(e) => handleFileChange(e, assignment.id, 'assignment')} />
+                                  <textarea className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800'
+                                    value={submissionForms[assignment.id]?.textContent || ''}
+                                    onChange={(e) => handleTextChange(e, assignment.id)}
+                                    placeholder="Text"
+                                  />
+                                  <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' type="submit">Save Changes</button>
+                                  <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' type="button" onClick={() => handleCancelEdit(assignment.id)}>Cancel Edit</button> {/* Add Cancel Edit button */}
+                                </form>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <form onSubmit={(e) => handleSubmitAssignment(e, assignment.id)}>
+                            <input type="file" onChange={(e) => handleFileChange(e, assignment.id, 'assignment')} />
+                            <textarea className='text-center border-2 border-gray rounded-xl'
+                              value={submissionForms[assignment.id]?.textContent || ''}
+                              onChange={(e) => handleTextChange(e, assignment.id)}
+                              placeholder="Text"
+                            />
+                            <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' type="submit">Submit Assignment</button>
+                          </form>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+                {userRole === 'teacher' && (
+                  <>
+                    <button className='m-1 bg-stone-200 p-2 rounded-xl hover:text-sky-800' onClick={() => handleShowSubmissions(assignment.id)}>
+                      Show Submissions
+                    </button>
+                    <button className='m-1 bg-stone-200 p-2 rounded-xl hover:text-sky-800' onClick={() => { handleEditAssignment(assignment); handleToggleEditAssignmentModal(); }}>
+                      Edit Assignment
+                    </button>
+                    {showEditAssignmentModal && (
+                      <div id="edit-assignment-modal" tabIndex="-1" aria-hidden="true" className='fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-black bg-opacity-50'>
+                        <div className="relative p-4 w-full max-w-2xl max-h-full">
+                          <div className='relative bg-white rounded-lg shadow bg-clasname-header rounded-xl p-3'>
+                            <form className='text-center space-y-4 text-xl p-3' onSubmit={(e) => handleEditAssignmentSubmit(e, editingAssignmentId)}>
+                              <input
+                                type="text"
+                                value={editingAssignment.title}
+                                onChange={(e) => setEditingAssignment({ ...editingAssignment, title: e.target.value })}
+                                placeholder="Edit Assignment Title"
+                                required
+                              />
+                              <input
+                                type="text"
+                                value={editingAssignment.description}
+                                onChange={(e) => setEditingAssignment({ ...editingAssignment, description: e.target.value })}
+                                placeholder="Edit Assignment Description"
+                                required
+                              />
+                              <input
+                                type="date"
+                                value={editingAssignment.due_date}
+                                onChange={(e) => setEditingAssignment({ ...editingAssignment, due_date: e.target.value })}
+                                placeholder="Edit Due Date"
+                                required
+                              />
+                              <button className='bg-slate-800 text-zinc-300 hover:text-sky-800 hover:bg-custom-gradient-login-bg w-full p-2 rounded-lg' type="submit">Save Changes</button>
+                              <button className='mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full' type="button" onClick={handleToggleEditAssignmentModal}>Cancel</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <button className='m-1 bg-stone-200 p-2 rounded-xl hover:text-sky-800' onClick={() => handleDeleteAssignment(assignment.id)}>
+                      Delete Assignment
+                    </button>
+                    {showSubmissions[assignment.id] && (
+                      <ul>
+                        {assignment.submissions.map((submission) => (
+                          <li key={submission.id}>
+                            <p>Student: {submission.Student.name}</p>
+                            <p>Submission file (pdf, docs, docx): {submission.file_path ? (
                               <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name, 'submission')}>
                                 {submission.original_file_name}
                               </a>
-                            ) : null}</p>
+                            ) : 'No file'}</p>
                             <p>{submission.text_content}</p>
                             <p>Grade: {submission.student_grade}</p>
-                            <button onClick={() => {
-                              setEditingSubmissionId(submission.id);
-                              setSubmissionForms({ ...submissionForms, [assignment.id]: { file: null, textContent: submission.text_content } });
-                            }}>Edit</button>
-                            <button onClick={() => handleDeleteSubmission(submission.id)}>Delete</button>
-                            {editingSubmissionId === submission.id && (
-                              <form onSubmit={(e) => handleEditSubmission(e, submission.id, assignment.id)}>
-                                <input type="file" onChange={(e) => handleFileChange(e, assignment.id, 'assignment')} />
-                                <textarea
-                                  value={submissionForms[assignment.id]?.textContent || ''}
-                                  onChange={(e) => handleTextChange(e, assignment.id)}
-                                  placeholder="Or enter text content"
-                                />
-                                <button type="submit">Save Changes</button>
-                                <button type="button" onClick={() => handleCancelEdit(assignment.id)}>Cancel Edit</button> {/* Add Cancel Edit button */}
-                              </form>
-                            )}
-                          </div>
-                        ))
-                      ) : (
-                        <form onSubmit={(e) => handleSubmitAssignment(e, assignment.id)}>
-                          <input type="file" onChange={(e) => handleFileChange(e, assignment.id, 'assignment')} />
-                          <textarea
-                            value={submissionForms[assignment.id]?.textContent || ''}
-                            onChange={(e) => handleTextChange(e, assignment.id)}
-                            placeholder="Or enter text content"
-                          />
-                          <button type="submit">Submit Assignment</button>
-                        </form>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
-              {userRole === 'teacher' && (
-                <>
-                  <button onClick={() => handleShowSubmissions(assignment.id)}>
-                    Show Submissions
-                  </button>
-                  <button onClick={() => handleEditAssignment(assignment)}>
-                    Edit Assignment
-                  </button>
-                  <button onClick={() => handleDeleteAssignment(assignment.id)}>
-                    Delete Assignment
-                  </button>
-                  {editingAssignmentId === assignment.id && (
-                    <form onSubmit={(e) => handleEditAssignmentSubmit(e, assignment.id)}>
-                      <input
-                        type="text"
-                        value={editingAssignment.title}
-                        onChange={(e) => setEditingAssignment({ ...editingAssignment, title: e.target.value })}
-                        placeholder="Edit Assignment Title" // Updated placeholder text
-                      />
-                      <input
-                        type="text"
-                        value={editingAssignment.description}
-                        onChange={(e) => setEditingAssignment({ ...editingAssignment, description: e.target.value })}
-                        placeholder="Edit Assignment Description" // Updated placeholder text
-                      />
-                      <input
-                        type="date"
-                        value={editingAssignment.due_date}
-                        onChange={(e) => setEditingAssignment({ ...editingAssignment, due_date: e.target.value })}
-                        placeholder="Edit Due Date" // Updated placeholder text
-                      />
-                      <button type="submit">Save Changes</button>
-                      <button type="button" onClick={() => setEditingAssignmentId(null)}>Cancel Edit</button>
-                    </form>
-                  )}
-                  {showSubmissions[assignment.id] && (
-                    <ul>
-                      {assignment.submissions.map((submission) => (
-                        <li key={submission.id}>
-                          <p>Student: {submission.Student.name}</p>
-                          <p>Submission file: {submission.file_path ? (
-                            <a href="#" onClick={() => handleDownloadFile(submission.id, submission.original_file_name, 'submission')}>
-                              {submission.original_file_name}
-                            </a>
-                          ) : 'No file'}</p>
-                          <p>{submission.text_content}</p>
-                          <p>Grade: {submission.student_grade}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      {userRole === 'teacher' && (
-        <form onSubmit={handleCreateAssignment}>
-          <input
-            type="text"
-            value={newAssignment.title}
-            onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
-            placeholder="New Assignment Title" // Updated placeholder text
-            required
-          />
-          <input
-            type="text"
-            value={newAssignment.description}
-            onChange={(e) => setNewAssignment({ ...newAssignment, description: e.target.value })}
-            placeholder="New Assignment Description" // Updated placeholder text
-            required
-          />
-          <input
-            type="date"
-            value={newAssignment.due_date}
-            onChange={(e) => setNewAssignment({ ...newAssignment, due_date: e.target.value })}
-            placeholder="New Due Date" // Updated placeholder text
-            required
-          />
-          <button type="submit">Create Assignment</button>
-        </form>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                )} </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
-      {userRole === 'teacher' && (
-        <button onClick={handleShowGrades}>Show Student Grades</button>
+      </div>
+      {showSuccessModal && (
+        <div className="fixed bottom-0 left-0 right-0 flex justify-center items-center mb-4">
+          <div className="bg-green-500 text-white p-4 rounded animate-slide-up rounded-xl text-2xl">
+            Sukses
+          </div>
+        </div>
       )}
-      {userRole === 'student' && (
-        <button onClick={handleShowGrades}>View My Grades</button>
+      {showFailureModal && (
+        <div className="fixed bottom-0 left-0 right-0 flex justify-center items-center mb-4">
+          <div className="bg-red-500 text-white p-4 rounded animate-slide-up rounded-xl text-2xl">
+            Gagal
+          </div>
+        </div>
       )}
+      <style>
+        {`
+          @keyframes slide-up {
+            from {
+              transform: translateY(100%);
+            }
+            to {
+              transform: translateY(0);
+            }
+          }
+          .animate-slide-up {
+            animation: slide-up 0.5s ease-out;
+          }
+        `}
+      </style>
     </div>
   );
 }

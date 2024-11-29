@@ -60,7 +60,7 @@ function Register() {
     <div className='custom-gradient-login-bg min-h-screen flex flex-col'>
       <h1 className='mx-4 text-yellow-500 text-6xl text-center p-5 pt-8'>Kidemy</h1>
       <h2 className='mx-4 text-white text-5xl p-5 mb-5 text-center'>Register</h2>
-      <div className='flex justify-center items-center flex-grow'>
+      <div className='flex justify-center items-center mx-4'>
         <div className='box-border w-loginwidthbox p-7 bg-white rounded-3xl rounded text-lg'>
           <form className='mx-4 space-y-6' onSubmit={handleSubmit}>
             <h1 className='text-indigo-800 text-3xl'>Selamat datang</h1>

@@ -32,28 +32,30 @@ function Grades() {
   }, [classId]);
 
   return (
-    <div>
-      <h1>{userRole === 'teacher' ? 'Student Grades' : 'My Grades'}</h1>
-      <ul>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">{userRole === 'teacher' ? 'Student Grades' : 'My Grades'}</h1>
+      <ul className="space-y-4">
         {grades.length > 0 ? (
           grades.map((grade) => (
-            <li key={grade.studentId}>
-              <p>Student: {grade.studentName}</p>
-              <ul>
+            <li key={grade.studentId} className="border space-y-2 p-4 rounded-lg shadow text-xl">
+              <p className="font-bold">Student: {grade.studentName}</p>
+              <ul className="list-disc list-inside ml-4">
                 {grade.assignments.map((assignment) => (
                   <li key={assignment.assignmentId}>
                     {assignment.assignmentName}: {assignment.grade}
                   </li>
                 ))}
               </ul>
-              <p>Total Grade: {grade.totalGrade}</p>
+              <p className="font-bold mt-2">Total Grade: {grade.totalGrade}</p>
             </li>
           ))
         ) : (
           <p>No grades available.</p>
         )}
       </ul>
-      <button onClick={() => navigate(-1)}>Back</button>
+      <button onClick={() => navigate(-1)} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
+        Back
+      </button>
     </div>
   );
 }
