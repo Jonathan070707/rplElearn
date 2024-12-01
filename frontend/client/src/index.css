@@ -86,3 +86,11 @@ background: linear-gradient(180deg, rgba(145,183,242,1) 0%, rgba(170,183,223,0.5
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.center-username {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  color: white;
+}

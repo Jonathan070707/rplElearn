@@ -51,33 +51,35 @@ function NavbarComponent() {
   };
 
   return (
-    <nav className="app-navbar">
-      <div className="navbar-left">
-        <button onClick={toggleDropdown} className="navbar-item text-4xl hover:text-blue-400">
-          MENU
-        </button>
-        {isDropdownOpen && (
-          <div className="dropdown-menu text-xl" style={{ cursor: 'pointer' }}>
-            <span onClick={() => handleRedirect(userRole === 'teacher' ? '/teacher-dashboard' : '/student-dashboard')} className="dropdown-item">Dashboard</span>
-            {userRole === 'teacher' && (
-              <>
-                <span onClick={() => handleRedirect('/user-management')} className="dropdown-item">Manage users</span>
-                <span onClick={() => handleRedirect('/register')} className="dropdown-item">Buat user baru</span>
-              </>
-            )}
-            <span onClick={handleLogout} className="dropdown-item">Logout</span>
+    <>
+      <nav className="app-navbar">
+        <div className="navbar-left">
+          <button onClick={toggleDropdown} className="navbar-item text-4xl hover:text-blue-400">
+            MENU
+          </button>
+          {isDropdownOpen && (
+            <div className="dropdown-menu text-xl" style={{ cursor: 'pointer' }}>
+              <span onClick={() => handleRedirect(userRole === 'teacher' ? '/teacher-dashboard' : '/student-dashboard')} className="dropdown-item">Dashboard</span>
+              {userRole === 'teacher' && (
+                <>
+                  <span onClick={() => handleRedirect('/user-management')} className="dropdown-item">Manage users</span>
+                  <span onClick={() => handleRedirect('/register')} className="dropdown-item">Buat user baru</span>
+                </>
+              )}
+              <span onClick={handleLogout} className="dropdown-item">Logout</span>
+            </div>
+          )}
+        </div>
+        <div className="navbar-right text-4xl" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+          <div className="" style={{ fontSize: '1rem' }}>
+            <span>GMT+8: {currentTime}</span>
           </div>
-        )}
-      </div>
-      <div className="navbar-right text-4xl" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-        <div className="" style={{ fontSize: '1rem' }}>
-          <span>WITA (YYYY/DD/MM): {currentTime}</span>
         </div>
-        <div>
-          <h1 className=''>{username}</h1>
-        </div>
+      </nav>
+      <div className="center-username text-white custom-gradient-login-bg">
+        <h1 className='mx-5'>{username}</h1>
       </div>
-    </nav>
+    </>
   );
 }
 
