@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns-tz';
+import 'animate.css';
 
 function NavbarComponent() {
   const [username, setUsername] = useState('');
@@ -52,8 +53,8 @@ function NavbarComponent() {
 
   return (
     <>
-      <nav className="app-navbar">
-        <div className="navbar-left">
+      <nav className="app-navbar ">
+        <div className="navbar-left animate__animated animate__backInDown animate__fast">
           <button onClick={toggleDropdown} className="navbar-item text-4xl hover:text-blue-400">
             MENU
           </button>
@@ -71,13 +72,13 @@ function NavbarComponent() {
           )}
         </div>
         <div className="navbar-right text-4xl" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-          <div className="" style={{ fontSize: '1rem' }}>
+          <div className="animate__animated animate__backInDown animate__fast" style={{ fontSize: '1rem' }}>
             <span>GMT+8: {currentTime}</span>
           </div>
         </div>
       </nav>
       <div className="center-username text-white custom-gradient-login-bg">
-        <h1 className='mx-5'>{username}</h1>
+        <h1 className='mx-5 animate__animated animate__backInDown animate__fast'>{username}</h1>
       </div>
     </>
   );

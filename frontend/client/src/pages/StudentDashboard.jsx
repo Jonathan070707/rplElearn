@@ -179,10 +179,10 @@ function StudentDashboard() {
             <button className='mt-4 bg-blue-500 hover:bg-slate800 hover:text-sky-800 p-3 rounded-lg text-center text-white' type="submit">Enroll</button>      
           </form>
         </div>
-        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'>
+        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 '>
           {searchResult.map((cls) => (
-            <li key={cls.id} className='bg-blue-500 rounded-xl p-3 text-gray-300 hover:bg-slate-800 border-4 border-blue-600 hover:border-blue-600'>
-              <div className='flex flex-col'>
+            <li key={cls.id} className='bg-blue-500 rounded-xl p-3 text-gray-300 hover:bg-slate-800 border-4 border-blue-600 hover:border-blue-600 animate__animated animate__bounceInLeft'>
+              <div className='flex flex-col '>
                 <span className='hover:text-sky-800 truncate-2-lines' style={{ cursor: 'pointer' }} onClick={() => handleClassClick(cls.id)}>{cls.name}</span>
                 {/* Display enrollment code */}
               </div>

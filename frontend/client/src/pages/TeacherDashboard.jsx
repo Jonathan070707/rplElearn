@@ -161,8 +161,8 @@ function TeacherDashboard() {
           </div>
         <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'>
           {searchResult.map((cls) => (
-            <li key={cls.id} className='bg-blue-500 rounded-xl p-3 text-gray-300 hover:bg-slate-800 border-4 border-blue-600 hover:border-blue-600'>
-              <div className='flex flex-col'>
+            <li key={cls.id} className='bg-blue-500 rounded-xl p-3 text-gray-300 hover:bg-slate-800 border-4 border-blue-600 hover:border-blue-600 animate__animated animate__bounceInLeft'>
+              <div className='flex flex-col '>
                 <span className='hover:text-sky-800 truncate-2-lines' style={{ cursor: 'pointer' }} onClick={() => handleClassClick(cls.id)}>{cls.name}</span>
                 <span className='hover:text-sky-800' style={{ cursor: 'pointer' }} onClick={() => handleCopyEnrollmentCode(cls.enrollment_code)}>
                   Click untuk copy kode enrollment
@@ -182,10 +182,10 @@ function TeacherDashboard() {
             </li>
           ))}
         </ul>
-        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5'>
+        <ul className='mx-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 '>
           {assignments.map((assignment) => (
-            <li key={assignment.id} className='bg-red-500 rounded-xl p-3 text-gray-300 hover:bg-slate-800 border-4 border-red-600 hover:border-red-600'>
-              <div className='flex flex-col'>
+            <li key={assignment.id} className='bg-red-500 rounded-xl p-3 text-gray-300 hover:bg-slate-800 border-4 border-red-600 hover:border-red-600 '>
+              <div className='flex flex-col '>
                 <span className='hover:text-sky-800 truncate-2-lines' style={{ cursor: 'pointer' }}>{assignment.title}</span>
                 <span className='hover:text-sky-800' style={{ cursor: 'pointer' }}>{assignment.description}</span>
               </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import 'animate.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -32,10 +33,10 @@ function Login() {
 
   return (
     <div className='custom-gradient-login-bg h-screen'>
-        <h1 className='mx-4 text-yellow-500 text-6xl text-center p-5 pt-8'>Kidemy</h1>
-        <h2 className='mx-4 text-white text-5xl p-5 mb-5 text-center'>Sign In</h2>
+        <h1 className='mx-4 text-yellow-500 text-6xl text-center p-5 pt-8 animate__animated animate__fadeInDown font-serif'>Kidemy</h1>
+        <h2 className='mx-4 text-white text-5xl p-5 mb-5 text-center animate__animated animate__fadeInUp'>Sign In</h2>
       <div className='flex justify-center items-center'>
-        <div className='box-border p-7 bg-white rounded-3xl rounded text-lg'>
+        <div className='box-border p-7 bg-white rounded-3xl rounded text-lg animate__animated animate__fadeInUp'>
           <form className='mx-4 p-4 space-y-6 ' onSubmit={handleSubmit}>
             <h1 className='text-indigo-800 text-3xl'>Selamat datang</h1>
             <h2 className='text-gray-500 text-1xl'>Silahkan login untuk lanjut</h2>
