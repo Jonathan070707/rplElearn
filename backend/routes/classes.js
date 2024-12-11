@@ -132,6 +132,10 @@ router.get('/:class_id/grades', authenticate(['teacher', 'student']), async (req
             },
           ],
         },
+        {
+          model: Enrollment,
+          include: [Student],
+        },
       ],
     });
 
@@ -143,13 +147,23 @@ router.get('/:class_id/grades', authenticate(['teacher', 'student']), async (req
 
     if (userRole === 'teacher') {
       grades = classDetails.Assignments.map((assignment) => {
-        return assignment.Submissions.map((submission) => ({
+        const submissions = assignment.Submissions.map((submission) => ({
           studentId: submission.Student.id,
           studentName: submission.Student.name,
           assignmentId: assignment.id,
           assignmentName: assignment.title,
           grade: submission.student_grade !== null ? submission.student_grade : 'Not Graded',
         }));
+        const studentIds = submissions.map(sub => sub.studentId);
+        const allStudents = classDetails.Enrollments.map(enrollment => enrollment.Student);
+        const missingSubmissions = allStudents.filter(student => !studentIds.includes(student.id)).map(student => ({
+          studentId: student.id,
+          studentName: student.name,
+          assignmentId: assignment.id,
+          assignmentName: assignment.title,
+          grade: 'Not Submitted',
+        }));
+        return [...submissions, ...missingSubmissions];
       }).flat();
     } else if (userRole === 'student') {
       grades = classDetails.Assignments.map((assignment) => {
@@ -173,7 +187,7 @@ router.get('/:class_id/grades', authenticate(['teacher', 'student']), async (req
           grade: grade.grade,
         });
         student.totalGrade += grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? parseFloat(grade.grade) : 0;
-        student.assignmentCount += grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? 1 : 0;
+        student.assignmentCount += 1; // Always increment assignment count
       } else {
         acc.push({
           studentId: grade.studentId,
@@ -186,14 +200,15 @@ router.get('/:class_id/grades', authenticate(['teacher', 'student']), async (req
             },
           ],
           totalGrade: grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? parseFloat(grade.grade) : 0,
-          assignmentCount: grade.grade !== 'Not Graded' && grade.grade !== 'Not Submitted' ? 1 : 0,
+          assignmentCount: 1, // Initialize assignment count to 1
         });
       }
       return acc;
     }, []);
 
     groupedGrades.forEach(student => {
-      student.totalGrade = student.assignmentCount > 0 ? (student.totalGrade / student.assignmentCount).toFixed(2) : 0;
+      const totalAssignments = student.assignmentCount;
+      student.totalGrade = totalAssignments > 0 ? (student.totalGrade / totalAssignments).toFixed(2) : 0;
     });
 
     res.send(groupedGrades);

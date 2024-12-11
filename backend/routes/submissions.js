@@ -54,7 +54,8 @@ router.post('/:assignment_id/submit', authenticate('student'), upload.single('fi
     const submission = await Submission.create(submissionData);
     res.status(201).send(submission);
   } catch (error) {
-    res.status(400).send(error);
+    console.error('Failed to submit assignment:', error);
+    res.status(500).send({ error: 'Failed to submit assignment' });
   }
 });
 
@@ -109,7 +110,8 @@ router.put('/:submission_id/edit', authenticate('student'), upload.single('file'
     await submission.update(updateData);
     res.send(submission);
   } catch (error) {
-    res.status(400).send(error);
+    console.error('Failed to edit submission:', error);
+    res.status(500).send({ error: 'Failed to edit submission' });
   }
 });
 

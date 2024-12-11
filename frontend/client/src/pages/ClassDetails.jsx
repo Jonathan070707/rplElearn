@@ -33,9 +33,14 @@ function ClassDetails() {
   const [showEditAssignmentModal, setShowEditAssignmentModal] = useState(false); // Add state for edit assignment modal
   const [showSuccessModal, setShowSuccessModal] = useState(false); // Add state for success modal
   const [showFailureModal, setShowFailureModal] = useState(false); // Add state for failure modal
+  const [showEditLessonModal, setShowEditLessonModal] = useState(false); // Add state for edit lesson modal
 
   const handleToggleEditAssignmentModal = () => {
     setShowEditAssignmentModal(!showEditAssignmentModal);
+  };
+
+  const handleToggleEditLessonModal = () => {
+    setShowEditLessonModal(!showEditLessonModal);
   };
 
   useEffect(() => {
@@ -256,6 +261,7 @@ function ClassDetails() {
       ));
       setEditingLessonId(null);
       setEditingLesson({ title: '', description: '', content: '', file: null });
+      setShowEditLessonModal(false); // Close the modal
       setShowSuccessModal(true); // Show success modal
       setTimeout(() => setShowSuccessModal(false), 3000); // Hide after 3 seconds
     } catch (error) {
@@ -292,6 +298,11 @@ function ClassDetails() {
       const formData = new FormData();
       const { file, textContent } = submissionForms[assignmentId] || {};
       if (file) {
+        const allowedFileTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!allowedFileTypes.includes(file.type)) {
+          alert('Unsupported file type. Please upload a PDF or DOC/DOCX file.');
+          return;
+        }
         formData.append('file', file);
       }
       if (textContent) {
@@ -336,6 +347,11 @@ function ClassDetails() {
       const formData = new FormData();
       const { file, textContent } = submissionForms[assignmentId] || {};
       if (file) {
+        const allowedFileTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!allowedFileTypes.includes(file.type)) {
+          alert('Unsupported file type. Please upload a PDF or DOC/DOCX file.');
+          return;
+        }
         formData.append('file', file);
       }
       if (textContent) {
@@ -677,6 +693,12 @@ function ClassDetails() {
                     </a>
                   </p>
                 )}
+                {userRole === 'teacher' && (
+                  <>
+                    <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' onClick={() => { handleEditLesson(lesson); handleToggleEditLessonModal(); }}>Edit</button>
+                    <button className='m-2 bg-gray-300 p-2 rounded-xl hover:text-sky-800' onClick={() => handleDeleteLesson(lesson.id)}>Delete</button>
+                  </>
+                )}
               </div>
             </li>
           ))}
@@ -756,6 +778,9 @@ function ClassDetails() {
                     <button className='m-1 bg-stone-200 p-2 rounded-xl hover:text-sky-800' onClick={() => { handleEditAssignment(assignment); handleToggleEditAssignmentModal(); }}>
                       Edit Assignment
                     </button>
+                    <button className='m-1 bg-stone-200 p-2 rounded-xl hover:text-sky-800' onClick={() => handleDeleteAssignment(assignment.id)}>
+                      Delete Assignment
+                    </button>
                     {showEditAssignmentModal && (
                       <div id="edit-assignment-modal" tabIndex="-1" aria-hidden="true" className='fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-black bg-opacity-50'>
                         <div className="relative p-4 w-full max-w-2xl max-h-full">
@@ -789,9 +814,6 @@ function ClassDetails() {
                         </div>
                       </div>
                     )}
-                    <button className='m-1 bg-stone-200 p-2 rounded-xl hover:text-sky-800' onClick={() => handleDeleteAssignment(assignment.id)}>
-                      Delete Assignment
-                    </button>
                     {showSubmissions[assignment.id] && (
                       <ul>
                         {assignment.submissions.map((submission) => (
@@ -845,6 +867,37 @@ function ClassDetails() {
           }
         `}
       </style>
+      {showEditLessonModal && (
+        <div id="edit-lesson-modal" tabIndex="-1" aria-hidden="true" className='fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-black bg-opacity-50'>
+          <div className="relative p-4 w-full max-w-2xl max-h-full">
+            <div className='relative bg-white rounded-lg shadow bg-clasname-header rounded-xl p-3'>
+              <form className='text-center space-y-4 text-xl p-3' onSubmit={(e) => handleEditLessonSubmit(e, editingLessonId)}>
+                <input
+                  type="text"
+                  value={editingLesson.title}
+                  onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
+                  placeholder="Edit Lesson Title"
+                  required
+                />
+                <input
+                  type="text"
+                  value={editingLesson.description}
+                  onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
+                  placeholder="Edit Lesson Description"
+                />
+                <textarea
+                  value={editingLesson.content}
+                  onChange={(e) => setEditingLesson({ ...editingLesson, content: e.target.value })}
+                  placeholder="Edit Lesson Content"
+                />
+                <input type="file" onChange={(e) => handleFileChange(e, editingLessonId, 'lesson')} />
+                <button className='bg-slate-800 text-zinc-300 hover:text-sky-800 hover:bg-custom-gradient-login-bg w-full p-2 rounded-lg' type="submit">Save Changes</button>
+                <button className='mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full' type="button" onClick={handleToggleEditLessonModal}>Cancel</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
