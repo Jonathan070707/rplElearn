@@ -51,7 +51,7 @@ function StudentDashboard() {
         setAssignments(assignmentResponse.data);
         setCalendarAssignments(assignmentResponse.data.map(assignment => ({
           date: new Date(assignment.due_date),
-          className: assignment.Class.name,
+          className: assignment.Class ? assignment.Class.name : 'Unknown Class',
           assignmentName: assignment.title,
           assignmentId: assignment.id,
         }))); // Set calendar assignments
